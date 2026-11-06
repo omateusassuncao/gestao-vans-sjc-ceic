@@ -436,26 +436,36 @@ function detectInputType(text){
 // ═══════════════════════════════════════════
 function parseNameList(text){
   return text.split('\n')
-    .filter(l=>{
-      const t=l.trim();
-      if(!t) return false;
-      // Skip header/title lines:
-      // - starts with "Van " (e.g. "Van SEX 🕗18:10 RETORNO 18lug")
-      // - starts with report section markers
-      if(/^Van\s/i.test(t)) return false;
+    .map(l=>{
+      // 1. Strip WhatsApp markdown formatting first
+      let t=l
+        .replace(/\*([^*]+)\*/g,'$1')   // *bold*
+        .replace(/_([^_]+)_/g,'$1')     // _italic_
+        .replace(/~([^~]+)~/g,'$1')     // ~strikethrough~
+        .trim();
+      return t;
+    })
+    .filter(t=>{
+      if(!t||t.length<2) return false;
+      // Skip title/header lines — check AFTER stripping markdown
+      // "Van SEX ...", "Van 18:10 ...", "*Van ...*" all become "Van ..." after strip
+      if(/^Van[\s\W]/i.test(t)) return false;
       if(/^(Relatório|Relatorio|Ninguém|Aguardando|Informaram|responderam|Ainda precisam)/i.test(t)) return false;
       if(/^[🚐⏳🚫⌛]/u.test(t)) return false;
+      // Skip lines that look like a van title: contain time pattern like 18:10 or RETORNO
+      if(/\d{1,2}:\d{2}/.test(t)&&!/^[-•]/.test(t)) return false;
+      if(/^RETORNO\b/i.test(t)) return false;
       return true;
     })
-    .map(l=>l
-      .replace(/^[\s•\-\*\d\.\)\|>]+/,'')   // leading bullets/numbers
-      .replace(/\(.*?\)/g,'')                // remove annotations: (av), (vD), (SR) etc.
-      .replace(/—.*$/,'')                    // em-dash suffix
-      .replace(/[🚐⏳🚫⌛✅🔁📋1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣🕗]/gu,'') // emojis
-      .replace(/\s{2,}/g,' ')               // collapse extra spaces
+    .map(t=>t
+      .replace(/^[\s•\-\*\d\.\)\|>]+/,'')  // leading bullets/numbers/asterisks
+      .replace(/\(.*?\)/g,'')               // annotations: (av), (vD), (SR)
+      .replace(/—.*$/,'')                   // em-dash suffix
+      .replace(/[🚐⏳🚫⌛✅🔁📋1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣🕗]/gu,'')
+      .replace(/\s{2,}/g,' ')
       .trim()
     )
-    .filter(l=>l.length>=2)
+    .filter(t=>t.length>=2)
     .map(name=>({name, vanHint:null, nret:false}));
 }
 
