@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Assistente 🚐 Partiu Rapha!</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F0F2F5;--surface:#fff;--border:#DDE1E8;--text:#1A1D23;--muted:#6B7280;--chip:#E8EAED;
+  --c1:#2563EB;--c2:#059669;--c3:#DC2626;--c4:#D97706;--c5:#7C3AED;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);--r:10px;
+}
+@media(prefers-color-scheme:dark){:root{--bg:#0F1117;--surface:#1C1F26;--border:#2E3340;--text:#E8EAF0;--muted:#9AA0AE;--chip:#252830;}}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+.page{display:none;min-height:100vh;padding:28px 16px 60px;}
+.page.active{display:block;}
+.page-inner{max-width:900px;margin:0 auto;}
+
+.app-logo{text-align:center;margin-bottom:24px;}
+.app-logo h1{font-size:1.5rem;font-weight:800;letter-spacing:-.03em;}
+.app-logo p{font-size:.8rem;color:var(--muted);margin-top:4px;}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;}
+.card-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.card-title{font-size:.86rem;font-weight:700;}
+.card-body{padding:14px 16px;}
+
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 14px;border-radius:9px;border:1px solid var(--border);background:var(--surface);color:var(--text);font:600 .78rem 'Inter',sans-serif;cursor:pointer;transition:background .15s,opacity .15s;}
+.btn:hover{background:var(--chip);}
+.btn-primary{background:var(--c1);color:#fff;border-color:var(--c1);}
+.btn-primary:hover{opacity:.88;background:var(--c1);}
+.btn-success{background:var(--c2);color:#fff;border-color:var(--c2);}
+.btn-success:hover{opacity:.88;}
+.btn-danger{background:var(--c3);color:#fff;border-color:var(--c3);}
+.btn-danger:hover{opacity:.88;}
+.btn-lg{padding:11px 20px;font-size:.86rem;border-radius:10px;}
+.btn-sm{padding:4px 10px;font-size:.7rem;border-radius:7px;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn-partiu{background:linear-gradient(135deg,#059669,#0891B2);color:#fff;border:none;font-weight:700;padding:9px 16px;border-radius:10px;animation:pulse 2s infinite;cursor:pointer;font:700 .8rem 'Inter',sans-serif;display:inline-flex;align-items:center;gap:5px;}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(5,150,105,.4);}50%{box-shadow:0 0 0 7px rgba(5,150,105,0);}}
+.btn-partiu:hover{opacity:.9;}
+.btn-partiu:disabled{background:#9CA3AF;border:none;animation:none;cursor:not-allowed;}
+
+/* steps */
+.steps{display:flex;margin-bottom:22px;border-radius:var(--r);overflow:hidden;border:1px solid var(--border);}
+.step{flex:1;padding:10px 8px;text-align:center;font-size:.7rem;font-weight:600;color:var(--muted);background:var(--surface);border-right:1px solid var(--border);transition:background .2s,color .2s;}
+.step:last-child{border-right:none;}
+.step.active{background:var(--c1);color:#fff;}
+.step.done{background:var(--chip);color:var(--text);}
+.step-num{display:block;font-size:.9rem;font-weight:800;line-height:1;}
+.step-lbl{display:block;margin-top:2px;font-size:.62rem;}
+
+textarea{width:100%;padding:11px 13px;border:1px solid var(--border);border-radius:8px;font:.82rem/1.65 'Inter',sans-serif;background:var(--bg);color:var(--text);resize:vertical;outline:none;}
+textarea:focus{border-color:var(--c1);}
+
+/* preview list of parsed names */
+.parsed-preview{margin-top:10px;background:var(--chip);border-radius:8px;padding:10px 12px;font-size:.76rem;line-height:1.9;max-height:160px;overflow-y:auto;color:var(--text);}
+.parsed-preview .cnt{font-weight:700;color:var(--c2);margin-bottom:4px;display:block;}
+
+/* van config */
+.vc-row{display:grid;grid-template-columns:32px 1fr 60px 60px 28px;gap:7px;align-items:center;padding:9px 10px;background:var(--chip);border-radius:8px;}
+.vc-row input[type=text],.vc-row input[type=number]{padding:6px 8px;border:1px solid var(--border);border-radius:7px;font:.78rem 'Inter',sans-serif;background:var(--surface);color:var(--text);outline:none;width:100%;}
+.vc-row input[type=number]{text-align:center;}
+.vc-row input[type=color]{width:32px;height:32px;padding:2px;border:1px solid var(--border);border-radius:6px;cursor:pointer;}
+.vc-header{display:grid;grid-template-columns:32px 1fr 60px 60px 28px;gap:7px;padding:0 10px 6px;font-size:.64rem;font-weight:700;color:var(--muted);}
+
+/* person list with swipe */
+.person-list{list-style:none;display:flex;flex-direction:column;gap:4px;max-height:460px;overflow-y:auto;padding:4px;}
+/* swipe wrapper — works left AND right */
+.swipe-wrap{position:relative;border-radius:8px;overflow:hidden;touch-action:pan-y;}
+.swipe-actions{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1fr;align-items:stretch;gap:3px;padding:3px;background:var(--chip);border-radius:8px;}
+.swipe-action{border:0;border-radius:6px;padding:0 4px;color:#fff;font:700 .68rem 'Inter',sans-serif;cursor:pointer;line-height:1.2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;}
+.sa-nret{background:#D97706;}
+.sa-nrep{background:#7C3AED;}
+.swipe-wrap .person-chip{position:relative;z-index:1;transition:transform .2s ease;width:100%;}
+/* slide left → reveals both options (chip moves left) */
+.swipe-wrap.revealed-left .person-chip{transform:translateX(-100%);}
+/* slide right → same reveal (chip moves right, actions still show) */
+.swipe-wrap.revealed-right .person-chip{transform:translateX(100%);}
+/* theme toggle — inline in header */
+.theme-btn{background:var(--surface);border:1px solid var(--border);border-radius:50%;width:38px;height:38px;display:grid;place-items:center;cursor:pointer;font-size:1rem;box-shadow:var(--shadow);transition:background .15s,transform .15s;flex-shrink:0;}
+.theme-btn:hover{background:var(--chip);transform:scale(1.08);}
+/* force dark/light via data-theme */
+[data-theme="dark"]{--bg:#0F1117;--surface:#1C1F26;--border:#2E3340;--text:#E8EAF0;--muted:#9AA0AE;--chip:#252830;}
+[data-theme="light"]{--bg:#F0F2F5;--surface:#fff;--border:#DDE1E8;--text:#1A1D23;--muted:#6B7280;--chip:#E8EAED;}
+/* person chip */
+.person-chip{display:grid;grid-template-columns:28px 1fr auto;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;background:#F9FAFB;border:1px solid #E5E7EB;cursor:grab;user-select:none;transition:opacity .12s;}
+@media(prefers-color-scheme:dark){.person-chip{background:#14161C;border-color:#2E3340;}}
+.person-chip:active{cursor:grabbing;}
+.person-chip.dragging{opacity:.35;}
+.avatar{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:.66rem;font-weight:700;color:#fff;flex-shrink:0;}
+.pname{font-size:.78rem;font-weight:600;overflow-wrap:anywhere;line-height:1.3;}
+.van-btns{display:flex;gap:3px;flex-shrink:0;}
+.vbtn{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:25px;padding:0 5px;border-radius:6px;border:1.5px solid;font:700 .62rem 'Inter',sans-serif;cursor:pointer;transition:background .1s,transform .1s;background:transparent;white-space:nowrap;}
+.vbtn:not(:disabled):hover{transform:scale(1.1);}
+.vbtn:disabled{opacity:.22;cursor:not-allowed;}
+
+/* special status panels */
+.special-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;}
+.sp-header{padding:9px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.sp-title{font-size:.78rem;font-weight:700;}
+.sp-drop-zone{min-height:52px;transition:background .15s,outline .12s;}
+.sp-drop-zone.drag-over-nret{outline:2px dashed #D97706;outline-offset:-2px;background:#FFFBEB;}
+.sp-drop-zone.drag-over-nrep{outline:2px dashed #7C3AED;outline-offset:-2px;background:#F5F3FF;}
+@media(prefers-color-scheme:dark){
+  .sp-drop-zone.drag-over-nret{background:#2B1E0D;}
+  .sp-drop-zone.drag-over-nrep{background:#1E1A36;}
+}
+.sp-drop-zone.empty-sp::after{font-size:.7rem;color:var(--muted);display:block;text-align:center;padding:12px 0;pointer-events:none;}
+.sp-drop-nret.empty-sp::after{content:'Arraste aqui — não voltam';}
+.sp-drop-nrep.empty-sp::after{content:'Arraste aqui — sem resposta';}
+.sp-list{list-style:none;padding:5px;display:flex;flex-direction:column;gap:3px;max-height:130px;overflow-y:auto;}
+.sp-item{display:flex;align-items:center;gap:7px;padding:5px 8px;border-radius:8px;cursor:default;}
+.sp-item-nret{background:#FEF3C7;}
+.sp-item-nrep{background:#EDE9FE;}
+@media(prefers-color-scheme:dark){.sp-item-nret{background:#2B1E0D;}.sp-item-nrep{background:#1E1A36;}}
+.sp-name{font-size:.74rem;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sp-name-nret{color:#92400E;}
+.sp-name-nrep{color:#5B21B6;}
+@media(prefers-color-scheme:dark){.sp-name-nret{color:#FCD34D;}.sp-name-nrep{color:#C4B5FD;}}
+.status-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:20px;font-size:.66rem;font-weight:700;border:1px solid;white-space:nowrap;}
+.chip-nret{background:#FEF3C7;border-color:#FDE68A;color:#92400E;}
+.chip-nrep{background:#EDE9FE;border-color:#DDD6FE;color:#5B21B6;}
+@media(prefers-color-scheme:dark){
+  .chip-nret{background:#2B1E0D;border-color:#78350F;color:#FCD34D;}
+  .chip-nrep{background:#1E1A36;border-color:#4C1D95;color:#C4B5FD;}
+}
+
+/* vans */
+.vans-grid{display:flex;flex-direction:column;gap:12px;}
+.van-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;transition:outline .12s;}
+.van-card.drag-over{outline:3px solid var(--vc);outline-offset:-2px;}
+.van-card.departed{opacity:.5;pointer-events:none;}
+.van-header{padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+.van-label{font-size:.86rem;font-weight:700;}
+.van-counter{font-size:.74rem;font-weight:600;color:var(--muted);}
+.van-counter b{color:var(--text);font-weight:700;}
+.van-header-right{margin-left:auto;display:flex;align-items:center;gap:7px;}
+.dep-badge{font-size:.66rem;font-weight:700;padding:3px 8px;border-radius:20px;background:#D1FAE5;color:#065F46;border:1px solid #A7F3D0;}
+.min-warn{font-size:.66rem;font-weight:600;padding:3px 8px;border-radius:20px;background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;}
+.van-progress{height:5px;background:var(--border);position:relative;}
+.van-progress-fill{height:100%;transition:width .3s;border-radius:0 2px 2px 0;}
+/* min line marker */
+.van-min-line{position:absolute;top:0;bottom:0;width:2px;background:rgba(220,38,38,.6);pointer-events:none;}
+.van-drop-zone{min-height:68px;padding:8px;display:flex;flex-wrap:wrap;gap:5px;align-content:flex-start;}
+.van-drop-zone.empty::after{content:'Arraste ou clique nos botões';font-size:.72rem;color:var(--muted);width:100%;text-align:center;padding:14px 0;pointer-events:none;}
+.van-full .van-drop-zone{pointer-events:none;}
+.van-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 7px 4px 4px;border-radius:20px;font-size:.68rem;font-weight:600;border:1px solid;animation:pop .15s ease;}
+@keyframes pop{from{transform:scale(.7);opacity:0;}to{transform:scale(1);opacity:1;}}
+.avatar-sm{width:16px;height:16px;border-radius:50%;display:grid;place-items:center;font-size:.5rem;font-weight:700;color:#fff;flex-shrink:0;}
+.remove-btn{display:grid;place-items:center;width:12px;height:12px;border-radius:50%;background:rgba(0,0,0,.12);border:none;cursor:pointer;font-size:.5rem;color:inherit;}
+.remove-btn:hover{background:rgba(0,0,0,.28);}
+
+/* alloc layout */
+.alloc-layout{display:grid;grid-template-columns:minmax(0,270px) 1fr;gap:14px;align-items:start;}
+.badge{font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:20px;background:var(--chip);color:var(--muted);}
+.search-wrap{padding:8px 10px;border-bottom:1px solid var(--border);}
+.search-wrap input{width:100%;padding:6px 9px;border:1px solid var(--border);border-radius:7px;font:.76rem 'Inter',sans-serif;background:var(--bg);color:var(--text);outline:none;}
+.search-wrap input:focus{border-color:var(--c1);}
+
+/* progress */
+.prog-wrap{margin:7px 0 4px;}
+.prog-track{height:6px;background:var(--border);border-radius:4px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--c2);border-radius:4px;transition:width .4s;}
+
+/* report */
+.report-block{background:#ECF0F1;border:1px solid #C8D0D8;border-radius:8px;padding:16px 18px;font:13.5px/1.85 'Courier New',monospace;white-space:pre-wrap;max-height:500px;overflow-y:auto;word-break:break-word;color:#1A1D23;}
+@media(prefers-color-scheme:dark){.report-block{background:#111318;border-color:#2E3340;color:#E8EAF0;}}
+
+/* banners */
+.banner{border-radius:8px;padding:11px 14px;font-size:.78rem;line-height:1.6;margin-bottom:12px;}
+.b-blue{background:#EFF6FF;border:1px solid #BFDBFE;color:#1E40AF;}
+.b-green{background:#ECFDF5;border:1px solid #A7F3D0;color:#065F46;}
+.b-orange{background:#FEF3C7;border:1px solid #FDE68A;color:#92400E;}
+.b-purple{background:#F5F3FF;border:1px solid #DDD6FE;color:#4C1D95;}
+@media(prefers-color-scheme:dark){
+  .b-blue{background:#172040;border-color:#2D4A8A;color:#93C5FD;}
+  .b-green{background:#0D2B1E;border-color:#1A5C3A;color:#6EE7B7;}
+  .b-orange{background:#2B1E0D;border-color:#78350F;color:#FCD34D;}
+  .b-purple{background:#1E1A36;border-color:#4C1D95;color:#C4B5FD;}
+}
+
+/* misc */
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.spacer{flex:1;}
+.tag{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.66rem;font-weight:600;}
+.tag-blue{background:#EFF6FF;color:#1D4ED8;border:1px solid #BFDBFE;}
+.tag-green{background:#ECFDF5;color:#065F46;border:1px solid #A7F3D0;}
+.tag-orange{background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;}
+@media(prefers-color-scheme:dark){
+  .tag-blue{background:#172040;color:#93C5FD;border-color:#2D4A8A;}
+  .tag-green{background:#0D2B1E;color:#6EE7B7;border-color:#1A5C3A;}
+  .tag-orange{background:#2B1E0D;color:#FCD34D;border-color:#78350F;}
+}
+hr.div{border:none;border-top:1px solid var(--border);margin:16px 0;}
+
+/* modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:grid;place-items:center;z-index:600;opacity:0;pointer-events:none;transition:opacity .2s;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--surface);border-radius:14px;padding:22px;width:min(90vw,370px);box-shadow:0 20px 60px rgba(0,0,0,.3);transform:translateY(14px);transition:transform .2s;}
+.modal-overlay.open .modal{transform:translateY(0);}
+.modal h2{font-size:.92rem;font-weight:700;margin-bottom:8px;}
+.modal p{font-size:.8rem;color:var(--muted);margin-bottom:16px;line-height:1.6;}
+.modal-actions{display:flex;gap:7px;justify-content:flex-end;}
+
+/* swipe hint */
+.swipe-hint{font-size:.8rem;color:var(--muted);padding:5px 10px 3px;text-align:right;}
+
+@media(max-width:620px){.alloc-layout{grid-template-columns:1fr;}.person-list{max-height:220px;}}
+</style>
+</head>
+<body>
+
+<!-- ══ PAGE 0 — ENTRADA ══ -->
+<div class="page active" id="pg-entrada">
+<div class="page-inner">
+  <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px;">
+    <div style="flex:1;min-width:0;">
+      <h1 style="font-size:1.3rem;font-weight:800;letter-spacing:-.03em;">Assistente 🚐 Partiu Rapha!</h1>
+      <p style="font-size:.78rem;color:var(--muted);margin-top:3px;">CEIC › JAC › SJC</p>
+    </div>
+    <button class="theme-btn" id="theme-btn" title="Alternar tema">🌙</button>
+    <button class="btn btn-primary btn-lg" id="btn-start" style="flex-direction:column;gap:1px;line-height:1.2;text-align:center;"><span>Iniciar</span><span>Alocação</span></button>
+  </div>
+
+  <!-- SINGLE TEXT AREA — auto-detect -->
+  <div class="card" style="margin-bottom:14px;">
+    <div class="card-header">
+      <span class="card-title" id="entrada-card-title">📋 Cole aqui a lista ou o relatório anterior</span>
+      <span class="badge" id="entrada-mode-badge" style="display:none;"></span>
+    </div>
+    <div class="card-body">
+      <p style="font-size:.76rem;color:var(--muted);margin-bottom:9px;" id="entrada-hint">
+        Cole uma lista de nomes <b>ou</b> um relatório anterior — o app detecta automaticamente.
+      </p>
+      <textarea id="main-input" rows="10" placeholder="Exemplos aceitos:&#10;&#10;• Lista simples:&#10;João Silva&#10;Maria Oliveira&#10;&#10;• Relatório anterior:&#10;🚐 Relatório de vans — Quinta, 06 Nov 2026&#10;Van 1 (10/15)&#10;• João Silva&#10;..."></textarea>
+      <div id="parsed-preview" class="parsed-preview" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- van config (shown only for new session) -->
+  <div class="card" id="van-config-card" style="margin-bottom:16px;">
+    <div class="card-header">
+      <span class="card-title">🚐 Configurar vans</span>
+      <button class="btn btn-sm" id="add-van-btn">+ Van</button>
+    </div>
+    <div class="card-body">
+      <div class="vc-header"><div>Cor</div><div>Nome</div><div style="text-align:center;">Mín.</div><div style="text-align:center;">Máx.</div><div></div></div>
+      <div id="van-config-list" style="display:flex;flex-direction:column;gap:7px;"></div>
+      <p style="font-size:.68rem;color:var(--muted);margin-top:8px;">Mín. = quantidade mínima para a van partir. Máx. = lotação máxima.</p>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══ PAGE 1 — ALOCAÇÃO ══ -->
+<div class="page" id="pg-alloc">
+<div class="page-inner" style="max-width:1020px;">
+  <div class="steps" style="margin-bottom:16px;">
+    <div class="step done"><span class="step-num">✓</span><span class="step-lbl">Lista</span></div>
+    <div class="step active"><span class="step-num">2</span><span class="step-lbl">Alocar</span></div>
+    <div class="step"><span class="step-num">3</span><span class="step-lbl">Relatório</span></div>
+  </div>
+
+  <div class="row" style="margin-bottom:12px;gap:6px;">
+    <div>
+      <div style="font-size:.96rem;font-weight:800;">🚐 Alocação nas vans</div>
+      <div style="font-size:.73rem;color:var(--muted);margin-top:2px;" id="alloc-subtitle"></div>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+      <button class="btn btn-sm" id="btn-clear-alloc">↺ Limpar</button>
+      <button class="btn btn-sm" id="btn-back-to-entrada">← Recomeçar</button>
+      <button class="btn btn-primary btn-lg" id="btn-finish-all">Ver relatório →</button>
+    </div>
+  </div>
+
+  <!-- progress -->
+  <div class="card" style="margin-bottom:12px;">
+    <div class="card-body" style="padding:10px 14px;">
+      <div class="row"><span style="font-size:.76rem;font-weight:600;">Progresso</span><span class="spacer"></span><span id="progress-text" style="font-size:.72rem;color:var(--muted);"></span></div>
+      <div class="prog-wrap"><div class="prog-track"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div></div>
+      <div class="row" style="gap:5px;margin-top:4px;" id="prog-tags"></div>
+    </div>
+  </div>
+
+  <div class="alloc-layout">
+    <div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">Pessoas</span><span class="badge" id="unalloc-badge">0</span></div>
+        <div class="search-wrap"><input type="text" id="alloc-search" placeholder="Buscar…"></div>
+        <div class="swipe-hint">← deslize ou arraste para 🚫 / ⌛</div>
+        <ul class="person-list" id="alloc-plist"></ul>
+      </div>
+      <!-- special panel: não volta -->
+      <div class="special-panel sp-panel-nret" style="margin-top:10px;">
+        <div class="sp-header" style="background:#FEF3C7;">
+          <span class="sp-title" style="color:#92400E;">🚫 Não volta</span>
+          <span class="badge" id="sp-nret-badge" style="background:#FDE68A;color:#92400E;">0</span>
+        </div>
+        <div class="sp-drop-zone sp-drop-nret" id="sp-drop-nret" data-status="nret">
+          <ul class="sp-list" id="sp-nret-list"></ul>
+        </div>
+      </div>
+      <!-- special panel: sem resposta -->
+      <div class="special-panel sp-panel-nrep" style="margin-top:8px;">
+        <div class="sp-header" style="background:#EDE9FE;">
+          <span class="sp-title" style="color:#5B21B6;">⌛ Sem resposta</span>
+          <span class="badge" id="sp-nrep-badge" style="background:#DDD6FE;color:#5B21B6;">0</span>
+        </div>
+        <div class="sp-drop-zone sp-drop-nrep" id="sp-drop-nrep" data-status="nrep">
+          <ul class="sp-list" id="sp-nrep-list"></ul>
+        </div>
+      </div>
+    </div>
+    <div class="vans-grid" id="alloc-vans-grid"></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ══ PAGE 2 — RELATÓRIO ══ -->
+<div class="page" id="pg-report">
+<div class="page-inner">
+  <div class="steps" style="margin-bottom:16px;">
+    <div class="step done"><span class="step-num">✓</span><span class="step-lbl">Lista</span></div>
+    <div class="step done"><span class="step-num">✓</span><span class="step-lbl">Alocar</span></div>
+    <div class="step active"><span class="step-num">3</span><span class="step-lbl">Relatório</span></div>
+  </div>
+  <div class="row" style="margin-bottom:14px;gap:6px;">
+    <div><div style="font-size:.96rem;font-weight:800;">📊 Relatório</div><div style="font-size:.73rem;color:var(--muted);margin-top:2px;" id="report-subtitle"></div></div>
+    <div style="margin-left:auto;display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+      <button class="btn btn-sm" id="btn-back-to-alloc">← Voltar</button>
+      <button class="btn btn-sm" id="btn-new-session">🔄 Nova sessão</button>
+      <button class="btn btn-success btn-lg" id="btn-copy-report">📋 Copiar relatório</button>
+    </div>
+  </div>
+  <div id="report-status-banner" class="banner" style="margin-bottom:12px;"></div>
+  <div id="report-vans-visual" style="display:flex;flex-direction:column;gap:11px;margin-bottom:16px;"></div>
+  <hr class="div">
+  <div style="font-size:.8rem;font-weight:700;margin-bottom:8px;">📱 Relatório para WhatsApp</div>
+  <div class="banner b-blue" style="margin-bottom:8px;">Cole este texto no grupo. <b>Se houver pessoas restantes, o próximo operador cola esse mesmo texto para continuar.</b></div>
+  <div class="report-block" id="report-text"></div>
+</div>
+</div>
+
+<!-- MODAL: confirmar partiu -->
+<div class="modal-overlay" id="modal-partiu">
+  <div class="modal">
+    <h2>🚀 Confirmar partida</h2>
+    <p id="partiu-msg">Confirma que a van já saiu? Ela ficará bloqueada e o relatório será gerado.</p>
+    <div class="modal-actions"><button class="btn" id="partiu-cancel">Cancelar</button><button class="btn btn-danger" id="partiu-ok">Sim, partiu! 🚀</button></div>
+  </div>
+</div>
+
+<!-- MODAL: recomeçar -->
+<div class="modal-overlay" id="modal-restart">
+  <div class="modal">
+    <h2>⚠️ Recomeçar?</h2>
+    <p>Isso vai apagar toda a sessão atual. Continua?</p>
+    <div class="modal-actions"><button class="btn" id="restart-cancel">Cancelar</button><button class="btn btn-danger" id="restart-ok">Sim</button></div>
+  </div>
+</div>
+
+<!-- MODAL: status especial (swipe) -->
+<div class="modal-overlay" id="modal-special">
+  <div class="modal">
+    <h2>Status especial</h2>
+    <p id="special-person-label" style="font-weight:700;font-size:.9rem;color:var(--text);margin-bottom:4px;"></p>
+    <p>Escolha o motivo pelo qual esta pessoa não está sendo alocada:</p>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <button class="btn" id="sp-nret" style="flex:1;flex-direction:column;gap:3px;padding:12px 8px;background:#FEF3C7;border-color:#FDE68A;color:#92400E;">
+        🚫<span style="font-size:.7rem;font-weight:700;display:block;margin-top:2px;">Não volta</span>
+      </button>
+      <button class="btn" id="sp-nrep" style="flex:1;flex-direction:column;gap:3px;padding:12px 8px;background:#EDE9FE;border-color:#DDD6FE;color:#5B21B6;">
+        ⌛<span style="font-size:.7rem;font-weight:700;display:block;margin-top:2px;">Sem resposta</span>
+      </button>
+    </div>
+    <div class="modal-actions"><button class="btn" id="special-cancel">Cancelar</button></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════
+const COLORS=['#7C3AED','#2563EB','#059669','#DC2626','#D97706','#DB2777','#0891B2','#4F46E5','#16A34A','#EA580C','#7E22CE','#1D4ED8','#065F46','#991B1B','#B45309','#BE185D','#0E7490','#4338CA','#15803D','#C2410C'];
+const VAN_COLORS=['#2563EB','#059669','#DC2626','#D97706','#7C3AED','#0891B2'];
+const WEEKDAYS=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+const MONTHS=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let session={vans:[],people:[],departed:{},special:[]};
+let dragId=null, partiuVid=null, swipePerson=null;
+
+// ═══════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════
+function ini(n){return(n||'').trim().split(/\s+/).slice(0,2).map(w=>w[0]||'').join('').toUpperCase()||'?';}
+function rgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
+function vcnt(vid){return session.people.filter(p=>p.van===vid).length;}
+function gv(vid){return session.vans.find(v=>v.id===vid);}
+function nid(arr){return arr.length?Math.max(...arr.map(x=>x.id))+1:1;}
+function goPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo(0,0);}
+function todayStr(){const d=new Date();return`${WEEKDAYS[d.getDay()]}, ${String(d.getDate()).padStart(2,'0')} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+
+// ═══════════════════════════════════════════
+// INPUT AUTO-DETECTION
+// Detects if pasted text is a fresh list or a previous report
+// ═══════════════════════════════════════════
+function detectInputType(text){
+  const t=text.trim();
+  // report markers
+  if(t.startsWith('🚐 Relatório')||t.startsWith('🚐 Relatorio')) return 'report';
+  if(/Van \d+\s*\(\d+\/\d+\)/.test(t)) return 'report';
+  if(t.includes('⏳ Ainda precisam') || t.includes('🚫 Informaram')) return 'report';
+  return 'list';
+}
+
+// ═══════════════════════════════════════════
+// SMART LIST PARSER
+// Returns array of {name, vanHint:null|1|2|3, nret:bool}
+// Handles:
+//   "2️⃣Artur Carisio NL Laura Juvenal"  → vanHint=2
+//   "Pedro Freitas ✅"                   → vanHint=1 (✅ = van 1 by convention)
+//   "~~Quessia Matos~~"  or  "Quessia~"  → nret=true (strikethrough/tilde = won't return)
+//   "- 3Karina Moreira"                  → vanHint=3
+//   "João Silva"                         → plain, needs allocation
+// ═══════════════════════════════════════════
+function parseNameList(text){
+  return text.split('\n')
+    .map(l=>l
+      .replace(/^[\s•\-\*\d\.\)\|>]+/,'')
+      .replace(/\(.*?\)/g,'')
+      .replace(/—.*$/,'')
+      .replace(/[🚐⏳🚫⌛✅🔁📋1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣]/gu,'')
+      .trim()
+    )
+    .filter(l=>{
+      if(!l||l.length<2) return false;
+      if(/^(Van\s*\d|Relatório|Relatorio|Ninguém|Aguardando|Informaram|responderam)/i.test(l)) return false;
+      return true;
+    })
+    .map(name=>({name, vanHint:null, nret:false}));
+}
+
+// Live preview as user types/pastes
+document.getElementById('main-input').addEventListener('input',debounce(updatePreview,350));
+
+function debounce(fn,ms){let t;return(...args)=>{clearTimeout(t);t=setTimeout(()=>fn(...args),ms);};}
+
+function updatePreview(){
+  const raw=document.getElementById('main-input').value.trim();
+  const preview=document.getElementById('parsed-preview');
+  const badge=document.getElementById('entrada-mode-badge');
+  const vcCard=document.getElementById('van-config-card');
+
+  if(!raw){preview.style.display='none';badge.style.display='none';vcCard.style.display='block';return;}
+
+  const type=detectInputType(raw);
+
+  if(type==='report'){
+    badge.style.display='inline-block';
+    badge.textContent='🔁 Continuação de sessão';
+    badge.style.background='#EDE9FE';badge.style.color='#5B21B6';badge.style.border='1px solid #DDD6FE';
+    vcCard.style.display='none'; // van config is in the report
+    try{
+      const parsed=parseReport(raw);
+      const unalloc=parsed.people.filter(p=>!p.van).length;
+      const dep=Object.keys(parsed.departed).length;
+      preview.style.display='block';
+      preview.innerHTML=`<span class="cnt">✅ Relatório reconhecido</span>`+
+        `${parsed.vans.length} vans · ${parsed.people.length} pessoas · ${unalloc} aguardando alocação · ${dep} van(s) partiram` +
+        (parsed.special.length?` · ${parsed.special.length} status especial`:'');
+    }catch(e){
+      preview.style.display='block';
+      preview.innerHTML=`<span class="cnt" style="color:var(--c3);">⚠️ Formato não reconhecido</span>Verifique se copiou o relatório completo.`;
+    }
+  } else {
+    badge.style.display='inline-block';
+    badge.textContent='✨ Nova lista';
+    badge.style.background='#ECFDF5';badge.style.color='#065F46';badge.style.border='1px solid #A7F3D0';
+    vcCard.style.display='block';
+    const parsed=parseNameList(raw);
+    if(!parsed.length){preview.style.display='none';return;}
+    preview.style.display='block';
+    preview.innerHTML=`<span class="cnt">${parsed.length} pessoa(s) reconhecida(s)</span>`+
+      parsed.slice(0,12).map(p=>p.name).join(' · ')+(parsed.length>12?` · <i>+${parsed.length-12} mais…</i>`:'');
+  }
+}
+
+// ═══════════════════════════════════════════
+// VAN CONFIG
+// ═══════════════════════════════════════════
+let vanConfigs=[
+  {id:1,name:'Van 1',minLimit:10,limit:15,color:VAN_COLORS[0]},
+  {id:2,name:'Van 2',minLimit:10,limit:15,color:VAN_COLORS[1]},
+  {id:3,name:'Van 3',minLimit:10,limit:15,color:VAN_COLORS[2]},
+];
+
+function renderVanConfig(){
+  const list=document.getElementById('van-config-list');
+  list.innerHTML='';
+  vanConfigs.forEach(vc=>{
+    const row=document.createElement('div');
+    row.className='vc-row';
+    row.innerHTML=`
+      <input type="color" value="${vc.color}" data-id="${vc.id}" class="vc-color">
+      <input type="text" value="${vc.name}" data-id="${vc.id}" class="vc-name" placeholder="Nome">
+      <input type="number" value="${vc.minLimit}" data-id="${vc.id}" class="vc-min" min="0" max="200" title="Mínimo para partir">
+      <input type="number" value="${vc.limit}" data-id="${vc.id}" class="vc-max" min="1" max="200" title="Capacidade máxima">
+      <button class="btn btn-sm vc-del" data-id="${vc.id}" style="color:var(--c3);padding:3px 7px;" title="Remover">✕</button>`;
+    list.appendChild(row);
+  });
+  list.querySelectorAll('.vc-name').forEach(el=>el.addEventListener('input',e=>{const v=vanConfigs.find(x=>x.id==e.target.dataset.id);if(v)v.name=e.target.value;}));
+  list.querySelectorAll('.vc-min').forEach(el=>el.addEventListener('input',e=>{const v=vanConfigs.find(x=>x.id==e.target.dataset.id);if(v)v.minLimit=parseInt(e.target.value)||0;}));
+  list.querySelectorAll('.vc-max').forEach(el=>el.addEventListener('input',e=>{const v=vanConfigs.find(x=>x.id==e.target.dataset.id);if(v)v.limit=parseInt(e.target.value)||15;}));
+  list.querySelectorAll('.vc-color').forEach(el=>el.addEventListener('input',e=>{const v=vanConfigs.find(x=>x.id==e.target.dataset.id);if(v)v.color=e.target.value;}));
+  list.querySelectorAll('.vc-del').forEach(el=>el.addEventListener('click',e=>{vanConfigs=vanConfigs.filter(v=>v.id!=e.target.dataset.id);renderVanConfig();}));
+}
+document.getElementById('add-van-btn').addEventListener('click',()=>{
+  const id=nid(vanConfigs);
+  vanConfigs.push({id,name:'Van '+(vanConfigs.length+1),minLimit:10,limit:15,color:VAN_COLORS[vanConfigs.length%VAN_COLORS.length]});
+  renderVanConfig();
+});
+renderVanConfig();
+
+// ═══════════════════════════════════════════
+// START BUTTON
+// ═══════════════════════════════════════════
+document.getElementById('btn-start').addEventListener('click',()=>{
+  const raw=document.getElementById('main-input').value.trim();
+  if(!raw){alert('Cole uma lista ou relatório no campo acima.');return;}
+
+  const type=detectInputType(raw);
+
+  if(type==='report'){
+    try{
+      session=parseReport(raw);
+      startAlloc();
+    }catch(e){alert('Não foi possível interpretar o relatório.\n\nDetalhe: '+e.message);}
+    return;
+  }
+
+  // new list — read van config
+  syncVanConfigFromInputs();
+  if(!vanConfigs.length){alert('Adicione pelo menos uma van.');return;}
+  for(const vc of vanConfigs){
+    if(vc.minLimit>vc.limit){alert(`"${vc.name}": o mínimo (${vc.minLimit}) não pode ser maior que o máximo (${vc.limit}).`);return;}
+  }
+
+  const parsed=parseNameList(raw);
+  if(!parsed.length){alert('Nenhum nome reconhecido. Verifique o texto colado.');return;}
+
+  session={
+    vans:vanConfigs.map(vc=>({id:vc.id,name:vc.name,minLimit:vc.minLimit,limit:vc.limit,color:vc.color})),
+    people:parsed.map((entry,i)=>({id:i+1,name:entry.name,color:COLORS[i%COLORS.length],van:null})),
+    departed:{},
+    special:[]
+  };
+  startAlloc();
+});
+
+function syncVanConfigFromInputs(){
+  document.querySelectorAll('.vc-name').forEach(el=>{const v=vanConfigs.find(x=>x.id==el.dataset.id);if(v)v.name=el.value.trim()||v.name;});
+  document.querySelectorAll('.vc-min').forEach(el=>{const v=vanConfigs.find(x=>x.id==el.dataset.id);if(v)v.minLimit=parseInt(el.value)||0;});
+  document.querySelectorAll('.vc-max').forEach(el=>{const v=vanConfigs.find(x=>x.id==el.dataset.id);if(v)v.limit=parseInt(el.value)||15;});
+  document.querySelectorAll('.vc-color').forEach(el=>{const v=vanConfigs.find(x=>x.id==el.dataset.id);if(v)v.color=el.value;});
+}
+
+// ═══════════════════════════════════════════
+// PARSE REPORT TEXT → session
+// ═══════════════════════════════════════════
+function parseReport(text){
+  const lines=text.split('\n').map(l=>l.trim()).filter(l=>l);
+  const vans=[],people=[],departed={},special=[];
+  let colorIdx=0,curSection=null,curVanId=null,personId=1,vanId=1;
+
+  function getOrCreateVan(name,limitStr,minLimitStr,isPartiu){
+    let van=vans.find(v=>v.name===name);
+    if(!van){
+      const limit=limitStr?parseInt(limitStr):15;
+      const minLimit=minLimitStr?parseInt(minLimitStr):Math.floor(limit*0.6);
+      van={id:vanId++,name,limit:isNaN(limit)?15:limit,minLimit:isNaN(minLimit)?10:minLimit,color:VAN_COLORS[colorIdx%VAN_COLORS.length]};
+      colorIdx++;vans.push(van);
+      if(isPartiu)departed[van.id]=true;
+    }
+    return van;
+  }
+
+  for(const line of lines){
+    if(line.startsWith('🚐 Relatório')||line.startsWith('🚐 Relatorio')) continue;
+
+    // "Van 1 (14/15)" or "Van 1 (14/15) — 🚀 Partiu!"
+    const vanMatch=line.match(/^(.+?)\s*\((\d+)\/(\d+)\)(.*)?$/);
+    if(vanMatch&&!line.startsWith('•')){
+      const vname=vanMatch[1].trim();
+      const maxStr=vanMatch[3];
+      const rest=vanMatch[4]||'';
+      const isPartiu=rest.includes('🚀')||/partiu/i.test(rest);
+      const van=getOrCreateVan(vname,maxStr,null,isPartiu);
+      curSection='van';curVanId=van.id;continue;
+    }
+    if(line.startsWith('⏳')){curSection='unalloc';curVanId=null;continue;}
+    if(line.startsWith('🚫')){curSection='nret';curVanId=null;continue;}
+    if(line.startsWith('⌛')){curSection='nrep';curVanId=null;continue;}
+
+    if(line.startsWith('•')){
+      const name=line.replace(/^•\s*/,'').trim();
+      if(!name||name==='Ninguém') continue;
+      if(curSection==='van'&&curVanId!==null){
+        let p=people.find(x=>x.name===name);
+        if(!p){p={id:personId++,name,color:COLORS[personId%COLORS.length],van:null};people.push(p);}
+        p.van=curVanId;
+      } else if(curSection==='unalloc'){
+        let p=people.find(x=>x.name===name);
+        if(!p){p={id:personId++,name,color:COLORS[personId%COLORS.length],van:null};people.push(p);}
+      } else if(curSection==='nret'){
+        special.push({id:personId++,name,status:'nret'});
+      } else if(curSection==='nrep'){
+        special.push({id:personId++,name,status:'nrep'});
+      }
+    }
+  }
+  if(!vans.length) throw new Error('Nenhuma van encontrada no relatório.');
+  return{vans,people,departed,special};
+}
+
+// ═══════════════════════════════════════════
+// START ALLOC
+// ═══════════════════════════════════════════
+function startAlloc(){
+  const total=session.people.length,alloc=session.people.filter(p=>p.van).length,dep=Object.keys(session.departed).length;
+  document.getElementById('alloc-subtitle').textContent=`${total} pessoas · ${session.vans.length} vans · ${alloc} já alocadas · ${dep} vans partiram`;
+  goPage('pg-alloc');
+  renderAlloc();
+}
+
+// ═══════════════════════════════════════════
+// RENDER ALLOC
+// ═══════════════════════════════════════════
+function renderAlloc(){renderAllocList();renderAllocVans();renderProgress();renderSpecial();}
+
+function renderAllocList(){
+  const q=(document.getElementById('alloc-search').value||'').toLowerCase();
+  const ul=document.getElementById('alloc-plist');
+  ul.innerHTML='';
+  const unalloc=session.people.filter(p=>!p.van&&p.name.toLowerCase().includes(q));
+  document.getElementById('unalloc-badge').textContent=session.people.filter(p=>!p.van).length;
+
+  if(!unalloc.length){
+    ul.innerHTML='<li style="padding:16px 8px;text-align:center;font-size:.76rem;color:var(--muted);">✅ Todos alocados!</li>';
+    return;
+  }
+  unalloc.forEach(person=>{
+    const li=document.createElement('li');
+    // swipe wrapper
+    const wrap=document.createElement('div');
+    wrap.className='swipe-wrap';
+    wrap.innerHTML=`
+      <div class="swipe-actions">
+        <button class="swipe-action sa-nret" data-pid="${person.id}">🚫<span>Não volta</span></button>
+        <button class="swipe-action sa-nrep" data-pid="${person.id}">⌛<span>Sem resposta</span></button>
+      </div>`;
+    // chip
+    const chip=document.createElement('div');
+    chip.className='person-chip'; chip.draggable=true; chip.dataset.id=person.id;
+    const btnHtml=session.vans.map((v,i)=>{
+      const full=vcnt(v.id)>=v.limit||session.departed[v.id];
+      return `<button class="vbtn" data-vid="${v.id}" ${full?'disabled':''} style="color:${v.color};border-color:${rgba(v.color,.4)};" title="${session.departed[v.id]?v.name+' já saiu':full?v.name+' cheia':v.name}">V${i+1}</button>`;
+    }).join('');
+    chip.innerHTML=`<div class="avatar" style="background:${person.color}">${ini(person.name)}</div><span class="pname">${person.name}</span><div class="van-btns">${btnHtml}</div>`;
+
+    // van button click
+    chip.querySelectorAll('.vbtn').forEach(btn=>{
+      const vid=parseInt(btn.dataset.vid);const col=gv(vid)?.color||'#888';
+      btn.addEventListener('mouseenter',()=>{if(!btn.disabled){btn.style.background=col;btn.style.color='#fff';}});
+      btn.addEventListener('mouseleave',()=>{btn.style.background='transparent';btn.style.color=col;});
+      btn.addEventListener('click',e=>{e.stopPropagation();if(session.departed[vid]||vcnt(vid)>=gv(vid).limit)return;assign(person.id,vid);});
+    });
+
+    // drag to van
+    chip.addEventListener('dragstart',()=>{dragId=person.id;setTimeout(()=>chip.classList.add('dragging'),0);});
+    chip.addEventListener('dragend',()=>{dragId=null;chip.classList.remove('dragging');});
+
+    // swipe gesture — left OR right reveals options
+    let startX=0,startY=0;
+    chip.addEventListener('touchstart',e=>{startX=e.touches[0].clientX;startY=e.touches[0].clientY;},{passive:true});
+    chip.addEventListener('touchmove',e=>{
+      const dx=e.touches[0].clientX-startX;
+      const dy=Math.abs(e.touches[0].clientY-startY);
+      if(dy>20)return; // vertical scroll — ignore
+      if(dx<-28){
+        wrap.classList.remove('revealed-right');
+        wrap.classList.add('revealed-left');
+      } else if(dx>28){
+        wrap.classList.remove('revealed-left');
+        wrap.classList.add('revealed-right');
+      } else if(Math.abs(dx)<8){
+        wrap.classList.remove('revealed-left','revealed-right');
+      }
+    },{passive:true});
+
+    // click chip body to close if revealed
+    chip.addEventListener('click',()=>{
+      if(wrap.classList.contains('revealed-left')||wrap.classList.contains('revealed-right')){
+        wrap.classList.remove('revealed-left','revealed-right');
+      }
+    });
+
+    // swipe action buttons
+    wrap.querySelector('.sa-nret').addEventListener('click',()=>openSpecialModal(person.id,'nret'));
+    wrap.querySelector('.sa-nrep').addEventListener('click',()=>openSpecialModal(person.id,'nrep'));
+
+    wrap.appendChild(chip);
+    li.appendChild(wrap);
+    ul.appendChild(li);
+  });
+}
+
+function renderAllocVans(){
+  const grid=document.getElementById('alloc-vans-grid');
+  grid.innerHTML='';
+  session.vans.forEach(van=>{
+    const cnt=vcnt(van.id),pct=Math.round(cnt/van.limit*100);
+    const full=cnt>=van.limit,dep=!!session.departed[van.id];
+    const minRequired=van.minLimit||0;
+    const listEmpty=session.people.filter(p=>!p.van).length===0;
+    const minMet=cnt>=minRequired||listEmpty;
+    const inVan=session.people.filter(p=>p.van===van.id);
+    const card=document.createElement('div');
+    card.className='van-card'+(dep?' departed':'');card.style.setProperty('--vc',van.color);
+
+    const chips=inVan.map(p=>`<div class="van-chip" style="background:${rgba(van.color,.1)};border-color:${rgba(van.color,.3)};color:${van.color};"><div class="avatar-sm" style="background:${p.color}">${ini(p.name)}</div>${p.name}${dep?'':'<button class="remove-btn" data-pid="'+p.id+'">✕</button>'}</div>`).join('');
+
+    // Partiu button: show as soon as minLimit is met (or no minLimit set)
+    // Disabled (greyed) while below min; pulsing when ready
+    let rightEl='';
+    if(dep){
+      rightEl='<span class="dep-badge">🚀 Partiu!</span>';
+    } else if(minMet){
+      // Ready to depart: show active Partiu button
+      rightEl=`<button class="btn-partiu" data-vid="${van.id}">🚀 Partiu!</button>`;
+    } else {
+      // Not yet at minimum: show disabled button with counter
+      const remaining=minRequired-cnt;
+      rightEl=`<button class="btn-partiu" data-vid="${van.id}" disabled style="background:#9CA3AF;animation:none;cursor:not-allowed;opacity:.7;">🚀 Faltam ${remaining}</button>`;
+    }
+
+    // min line position on progress bar
+    const minPct=van.minLimit?Math.round(van.minLimit/van.limit*100):0;
+
+    card.innerHTML=`
+      <div class="van-header" style="background:${rgba(van.color,.07)};">
+        <span style="font-size:1rem;">🚐</span>
+        <span class="van-label" style="color:${van.color};">${van.name}</span>
+        <span class="van-counter"><b>${cnt}</b>/${van.limit}${van.minLimit?` · mín. ${van.minLimit}`:''}</span>
+        <div class="van-header-right">${rightEl}</div>
+      </div>
+      <div class="van-progress">
+        <div class="van-progress-fill" style="width:${pct}%;background:${van.color};"></div>
+        ${van.minLimit?`<div class="van-min-line" style="left:${minPct}%;"></div>`:''}
+      </div>
+      <div class="van-drop-zone ${inVan.length?'':'empty'} ${(full||dep)?'van-full':''}" data-van="${van.id}">${chips}</div>`;
+
+    if(!dep){
+      card.querySelectorAll('.remove-btn').forEach(btn=>btn.addEventListener('click',()=>assign(parseInt(btn.dataset.pid),null)));
+      const zone=card.querySelector('.van-drop-zone');
+      zone.addEventListener('dragover',e=>{e.preventDefault();card.classList.add('drag-over');});
+      zone.addEventListener('dragleave',e=>{if(!card.contains(e.relatedTarget))card.classList.remove('drag-over');});
+      zone.addEventListener('drop',e=>{
+        e.preventDefault();card.classList.remove('drag-over');
+        if(!dragId)return;
+        const v=gv(van.id);
+        if(vcnt(van.id)>=v.limit){alert(v.name+' está cheia (máx. '+v.limit+')!');return;}
+        assign(dragId,van.id);
+      });
+    }
+    const pb=card.querySelector('.btn-partiu');
+    if(pb)pb.addEventListener('click',()=>openPartiu(van.id));
+    grid.appendChild(card);
+  });
+}
+
+function renderProgress(){
+  const total=session.people.length,alloc=session.people.filter(p=>p.van).length;
+  const pct=total?Math.round(alloc/total*100):0;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('progress-text').textContent=`${alloc}/${total} (${pct}%)`;
+  const tags=document.getElementById('prog-tags');tags.innerHTML='';
+  const dep=Object.keys(session.departed).length;
+  if(dep) tags.innerHTML+=`<span class="tag tag-green">🚀 ${dep} partiram</span>`;
+  const left=session.people.filter(p=>!p.van).length;
+  if(left) tags.innerHTML+=`<span class="tag tag-orange">⏳ ${left} aguardando</span>`;
+  const nret=session.special.filter(s=>s.status==='nret').length;
+  const nrep=session.special.filter(s=>s.status==='nrep').length;
+  if(nret) tags.innerHTML+=`<span class="tag" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A;">🚫 ${nret}</span>`;
+  if(nrep) tags.innerHTML+=`<span class="tag" style="background:#EDE9FE;color:#5B21B6;border:1px solid #DDD6FE;">⌛ ${nrep}</span>`;
+}
+
+function renderSpecial(){
+  const nretList=session.special.filter(s=>s.status==='nret');
+  const nrepList=session.special.filter(s=>s.status==='nrep');
+
+  // badges
+  document.getElementById('sp-nret-badge').textContent=nretList.length;
+  document.getElementById('sp-nrep-badge').textContent=nrepList.length;
+
+  // helper: render one list
+  function renderSpList(ulId, zoneId, items, status){
+    const ul=document.getElementById(ulId);
+    const zone=document.getElementById(zoneId);
+    ul.innerHTML='';
+    if(!items.length){
+      zone.classList.add('empty-sp');
+    } else {
+      zone.classList.remove('empty-sp');
+      items.forEach(sp=>{
+        const li=document.createElement('li');
+        li.className=`sp-item sp-item-${status}`;
+        li.innerHTML=`
+          <span class="sp-name sp-name-${status}">${sp.name}</span>
+          <button class="btn btn-sm sp-del" data-id="${sp.id}" title="Devolver para a lista" style="padding:2px 7px;color:var(--muted);flex-shrink:0;">↩</button>`;
+        // ↩ restores person back to unallocated people list
+        li.querySelector('.sp-del').addEventListener('click',()=>{
+          const entry=session.special.find(x=>x.id===sp.id);
+          if(!entry)return;
+          session.special=session.special.filter(x=>x.id!==sp.id);
+          // re-add to people (unallocated)
+          session.people.push({id:nid(session.people),name:entry.name,color:COLORS[session.people.length%COLORS.length],van:null});
+          renderAlloc();
+        });
+        ul.appendChild(li);
+      });
+    }
+  }
+
+  renderSpList('sp-nret-list','sp-drop-nret',nretList,'nret');
+  renderSpList('sp-nrep-list','sp-drop-nrep',nrepList,'nrep');
+
+  // wire drop zones (called here so it re-wires after each render)
+  wireSpecialDropZones();
+}
+
+function wireSpecialDropZones(){
+  ['nret','nrep'].forEach(status=>{
+    const zone=document.getElementById('sp-drop-'+status);
+    // remove old listeners by cloning (simplest approach)
+    const fresh=zone.cloneNode(true);
+    zone.parentNode.replaceChild(fresh,zone);
+    // re-attach sp-del click listeners on the new clone
+    fresh.querySelectorAll('.sp-del').forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        const id=parseInt(btn.dataset.id);
+        const entry=session.special.find(x=>x.id===id);
+        if(!entry)return;
+        session.special=session.special.filter(x=>x.id!==id);
+        session.people.push({id:nid(session.people),name:entry.name,color:COLORS[session.people.length%COLORS.length],van:null});
+        renderAlloc();
+      });
+    });
+    fresh.addEventListener('dragover',e=>{
+      e.preventDefault();
+      fresh.classList.add(`drag-over-${status}`);
+    });
+    fresh.addEventListener('dragleave',e=>{
+      if(!fresh.contains(e.relatedTarget)) fresh.classList.remove(`drag-over-${status}`);
+    });
+    fresh.addEventListener('drop',e=>{
+      e.preventDefault();
+      fresh.classList.remove(`drag-over-${status}`);
+      if(!dragId)return;
+      // find person in people list
+      const p=session.people.find(x=>x.id===dragId);
+      if(!p)return;
+      session.people=session.people.filter(x=>x.id!==dragId);
+      session.special.push({id:nid(session.special.map(s=>({id:s.id}))),name:p.name,status});
+      dragId=null;
+      renderAlloc();
+    });
+  });
+}
+
+function assign(pid,vid){
+  const p=session.people.find(x=>x.id===pid);if(!p)return;
+  p.van=vid;renderAlloc();
+}
+
+// ═══════════════════════════════════════════
+// SPECIAL STATUS MODAL (triggered by swipe)
+// ═══════════════════════════════════════════
+function openSpecialModal(pid,preselect){
+  const person=session.people.find(x=>x.id===pid);
+  if(!person)return;
+  swipePerson=person;
+  document.getElementById('special-person-label').textContent=person.name;
+  openModal('modal-special');
+  if(preselect) addSpecial(preselect);
+}
+
+function addSpecial(status){
+  if(!swipePerson)return;
+  // remove from people list (move to special)
+  session.people=session.people.filter(x=>x.id!==swipePerson.id);
+  session.special.push({id:nid(session.special.map(s=>({id:s.id}))),name:swipePerson.name,status});
+  swipePerson=null;
+  closeModal('modal-special');
+  renderAlloc();
+}
+document.getElementById('sp-nret').addEventListener('click',()=>addSpecial('nret'));
+document.getElementById('sp-nrep').addEventListener('click',()=>addSpecial('nrep'));
+document.getElementById('special-cancel').addEventListener('click',()=>{swipePerson=null;closeModal('modal-special');});
+document.getElementById('modal-special').addEventListener('click',e=>{if(e.target===document.getElementById('modal-special')){swipePerson=null;closeModal('modal-special');}});
+
+// ═══════════════════════════════════════════
+// PARTIU — with min limit check
+// ═══════════════════════════════════════════
+function openPartiu(vid){
+  const van=gv(vid);if(!van)return;
+  const cnt=vcnt(vid);
+  const minRequired=van.minLimit||0;
+  const unallocated=session.people.filter(p=>!p.van).length;
+  const listEmpty=unallocated===0;
+  const remainingVans=session.vans.filter(v=>!session.departed[v.id]).length;
+  const isLastVan=remainingVans===1;
+  if(isLastVan&&unallocated>0){
+    alert(`Ainda há ${unallocated} pessoa(s) sem van.\nAloque todos antes de partir com a última van.`);
+    return;
+  }
+  if(cnt<minRequired&&!listEmpty){
+    alert(`${van.name} precisa de no mínimo ${minRequired} pessoas para partir.\nAtualmente: ${cnt}/${minRequired}.`);
+    return;
+  }
+  partiuVid=vid;
+  const pct=van.limit?Math.round(cnt/van.limit*100):100;
+  document.getElementById('partiu-msg').innerHTML=
+    `Confirma que a <b>${van.name}</b> já saiu?<br><br>`+
+    `<span style="font-size:.82rem;color:var(--muted);">${cnt} pessoas (${pct}% da capacidade)${minRequired?` · mínimo era ${minRequired}`:''}.</span><br><br>`+
+    `Ela ficará bloqueada e o relatório será gerado.`;
+  openModal('modal-partiu');
+}
+document.getElementById('partiu-cancel').addEventListener('click',()=>closeModal('modal-partiu'));
+document.getElementById('modal-partiu').addEventListener('click',e=>{if(e.target===document.getElementById('modal-partiu'))closeModal('modal-partiu');});
+document.getElementById('partiu-ok').addEventListener('click',()=>{
+  if(!partiuVid)return;
+  session.departed[partiuVid]=true;
+  closeModal('modal-partiu');
+  renderAlloc();
+  buildReport();goPage('pg-report');
+});
+
+// ═══════════════════════════════════════════
+// ALLOC CONTROLS
+// ═══════════════════════════════════════════
+document.getElementById('alloc-search').addEventListener('input',renderAllocList);
+document.getElementById('btn-clear-alloc').addEventListener('click',()=>{
+  if(!confirm('Limpar alocações das vans ainda não partidas?'))return;
+  session.people.forEach(p=>{if(!session.departed[p.van])p.van=null;});renderAlloc();
+});
+document.getElementById('btn-finish-all').addEventListener('click',()=>{buildReport();goPage('pg-report');});
+document.getElementById('btn-back-to-alloc').addEventListener('click',()=>goPage('pg-alloc'));
+document.getElementById('btn-back-to-entrada').addEventListener('click',()=>openModal('modal-restart'));
+document.getElementById('restart-cancel').addEventListener('click',()=>closeModal('modal-restart'));
+document.getElementById('restart-ok').addEventListener('click',()=>{closeModal('modal-restart');resetToEntrada();});
+
+// ═══════════════════════════════════════════
+// BUILD REPORT — WhatsApp text
+// ═══════════════════════════════════════════
+function buildReport(){
+  const dep=Object.keys(session.departed);
+  const unalloc=session.people.filter(p=>!p.van);
+  const allDone=unalloc.length===0&&dep.length===session.vans.length;
+
+  document.getElementById('report-subtitle').textContent=
+    `${session.people.filter(p=>p.van).length}/${session.people.length} pessoas · ${dep.length}/${session.vans.length} vans partiram`;
+
+  const banner=document.getElementById('report-status-banner');
+  if(allDone){banner.className='banner b-green';banner.innerHTML='✅ <b>Alocação concluída!</b> Todas as pessoas foram alocadas e todas as vans partiram.';}
+  else if(dep.length>0){banner.className='banner b-orange';banner.innerHTML=`🔁 <b>Passagem intermediária.</b> ${dep.length} van(s) partiram. Copie o relatório e passe ao próximo operador (${unalloc.length} pessoas restantes).`;}
+  else{banner.className='banner b-blue';banner.innerHTML='📋 Relatório gerado. Quando uma van partir clique em <b>🚀 Partiu!</b> para gerar o relatório de passagem.';}
+
+  // visual vans
+  const vv=document.getElementById('report-vans-visual');vv.innerHTML='';
+  session.vans.forEach(van=>{
+    const inVan=session.people.filter(p=>p.van===van.id);
+    const departed=!!session.departed[van.id];
+    const pct=Math.round(inVan.length/van.limit*100);
+    const div=document.createElement('div');div.className='card';
+    const chips=inVan.map(p=>`<div class="van-chip" style="background:${rgba(van.color,.1)};border-color:${rgba(van.color,.3)};color:${van.color};"><div class="avatar-sm" style="background:${p.color}">${ini(p.name)}</div>${p.name}</div>`).join('');
+    div.innerHTML=`
+      <div class="van-header" style="background:${rgba(van.color,.07)};">
+        <span style="font-size:1rem;">🚐</span><span class="van-label" style="color:${van.color};">${van.name}</span>
+        <span class="van-counter"><b>${inVan.length}</b>/${van.limit}</span>
+        <div class="van-header-right">${departed?'<span class="dep-badge">🚀 Partiu!</span>':'<span class="tag tag-orange">⏳ Aguardando</span>'}</div>
+      </div>
+      <div class="van-progress"><div class="van-progress-fill" style="width:${pct}%;background:${van.color};"></div></div>
+      <div style="padding:8px;display:flex;flex-wrap:wrap;gap:5px;min-height:40px;">${chips||'<span style="font-size:.7rem;color:var(--muted);">Ninguém alocado</span>'}</div>`;
+    vv.appendChild(div);
+  });
+
+  // ── WhatsApp text ──
+  const lines=[];
+  const titleBase=`🚐 Van 18:10 RETORNO - ${todayStr()}`;
+  lines.push(allDone ? `✅ ${titleBase} ✅` : titleBase);
+  lines.push('');
+  session.vans.forEach(van=>{
+    const inVan=session.people.filter(p=>p.van===van.id);
+    const departed=!!session.departed[van.id];
+    lines.push(`${van.name} (${inVan.length}/${van.limit})${departed?' — 🚀 Partiu!':''}`);
+    inVan.length?inVan.forEach(p=>lines.push(`• ${p.name}`)):lines.push('• Ninguém');
+    lines.push('');
+  });
+  lines.push(`⏳ Ainda precisam ser alocados (${unalloc.length})`);
+  unalloc.length?unalloc.forEach(p=>lines.push(`• ${p.name}`)):lines.push('• Ninguém');
+  lines.push('');
+  const nret=session.special.filter(s=>s.status==='nret');
+  lines.push(`🚫 Informaram que não voltam (${nret.length})`);
+  nret.length?nret.forEach(s=>lines.push(`• ${s.name}`)):lines.push('• Ninguém');
+  lines.push('');
+  const nrep=session.special.filter(s=>s.status==='nrep');
+  lines.push(`⌛ Não responderam a tempo (${nrep.length})`);
+  nrep.length?nrep.forEach(s=>lines.push(`• ${s.name}`)):lines.push('• Ninguém');
+  lines.push('');
+  // footer — only when there are still vans that haven't departed
+  const depCount=Object.keys(session.departed).length;
+  if(depCount>0 && depCount<session.vans.length){
+    lines.push('📋 Copie essa lista e continue o processo no app.');
+    lines.push('');
+  }
+  lines.push('Lista atualizada pelo Assistente 🚐 Partiu Rapha!');
+  lines.push('https://omateusassuncao.github.io/gestao-vans-sjc-ceic/');
+
+  // Update the text block
+  document.getElementById('report-text').textContent=lines.join('\n');
+
+  // Also update the visual link in the report section
+  let footerEl=document.getElementById('report-footer-link');
+  if(!footerEl){
+    footerEl=document.createElement('div');
+    footerEl.id='report-footer-link';
+    footerEl.style.cssText='margin-top:10px;padding:10px 14px;background:var(--chip);border-radius:8px;font-size:.78rem;line-height:1.6;';
+    document.getElementById('report-text').insertAdjacentElement('afterend',footerEl);
+  }
+  const showContinue=depCount>0&&depCount<session.vans.length;
+  footerEl.innerHTML=
+    (showContinue?'<div style="margin-bottom:6px;">📋 <b>Copie essa lista e continue o processo no app.</b></div>':'')+
+    'Lista atualizada pelo <a href="https://omateusassuncao.github.io/gestao-vans-sjc-ceic/" target="_blank" style="color:var(--c1);font-weight:700;text-decoration:none;">Assistente 🚐 Partiu Rapha!</a>';
+}
+
+// ═══════════════════════════════════════════
+// COPY
+// ═══════════════════════════════════════════
+document.getElementById('btn-copy-report').addEventListener('click',()=>{
+  const txt=document.getElementById('report-text').textContent;
+  const btn=document.getElementById('btn-copy-report');
+  const done=()=>{const o=btn.textContent;btn.textContent='✓ Copiado!';setTimeout(()=>btn.textContent=o,2200);};
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(done).catch(()=>fbCopy(txt,done));}
+  else fbCopy(txt,done);
+});
+function fbCopy(txt,cb){const ta=document.createElement('textarea');ta.value=txt;ta.style.cssText='position:fixed;opacity:0;';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');cb();}catch(e){}document.body.removeChild(ta);}
+
+// ═══════════════════════════════════════════
+// NEW SESSION
+// ═══════════════════════════════════════════
+function resetToEntrada(){
+  session={vans:[],people:[],departed:{},special:[]};
+  // reset textarea and preview
+  document.getElementById('main-input').value='';
+  document.getElementById('parsed-preview').style.display='none';
+  const badge=document.getElementById('entrada-mode-badge');
+  badge.style.display='none'; badge.textContent='';
+  document.getElementById('van-config-card').style.display='block';
+  vanConfigs=[
+    {id:1,name:'Van 1',minLimit:10,limit:15,color:VAN_COLORS[0]},
+    {id:2,name:'Van 2',minLimit:10,limit:15,color:VAN_COLORS[1]},
+    {id:3,name:'Van 3',minLimit:10,limit:15,color:VAN_COLORS[2]},
+  ];
+  renderVanConfig();
+  goPage('pg-entrada');
+}
+document.getElementById('btn-new-session').addEventListener('click',()=>{
+  if(!confirm('Iniciar nova sessão? Os dados atuais serão perdidos.'))return;
+  resetToEntrada();
+});
+// ═══════════════════════════════════════════
+// THEME TOGGLE
+// ═══════════════════════════════════════════
+(function(){
+  const btn=document.getElementById('theme-btn');
+  const root=document.documentElement;
+  // detect initial preference
+  const prefersDark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+  let isDark=prefersDark;
+  function applyTheme(){
+    root.setAttribute('data-theme',isDark?'dark':'light');
+    btn.textContent=isDark?'☀️':'🌙';
+    btn.title=isDark?'Modo claro':'Modo escuro';
+    // also fix dark-mode-only styles that use media query (override via data-theme)
+    document.querySelectorAll('.sp-item-nret').forEach(el=>el.style.background=isDark?'#2B1E0D':'#FEF3C7');
+    document.querySelectorAll('.sp-item-nrep').forEach(el=>el.style.background=isDark?'#1E1A36':'#EDE9FE');
+  }
+  applyTheme();
+  btn.addEventListener('click',()=>{isDark=!isDark;applyTheme();});
+})();
+</script>
+<!-- ══ ABOUT FOOTER ══ -->
+<footer style="max-width:900px;margin:40px auto 0;padding:28px 20px 40px;border-top:1px solid var(--border);">
+  <div>
+    <div style="font-size:.9rem;font-weight:800;margin-bottom:8px;">Assistente 🚐 Partiu Rapha!</div>
+    <p style="font-size:.78rem;color:var(--muted);line-height:1.75;">
+      Ferramenta colaborativa, online e sem cadastro, feita para organizar o nosso retorno para casa.<br>
+      Caso encontre algum bug ou queira sugerir melhorias, entre em contato com os administradores do grupo.
+    </p>
+    <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border);">
+      <div style="font-size:.9rem;font-weight:800;margin-bottom:8px;">Autor</div>
+      <p style="font-size:.78rem;color:var(--muted);line-height:1.75;">
+        <strong style="color:var(--text);">Mateus Assunção</strong><br>
+        <a href="https://www.linkedin.com/in/mateusvassuncao" target="_blank"
+           style="display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--muted);font-size:.74rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" style="flex-shrink:0;"><rect width="24" height="24" rx="4" fill="#0A66C2"/><path fill="#fff" d="M7.75 9.5h-2.5v8h2.5v-8zm-1.25-4a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5zm10.25 3.75c-1.38 0-2.19.6-2.5 1.17V9.5h-2.5v8h2.5v-4.25c0-1.14.6-1.75 1.5-1.75.87 0 1.5.58 1.5 1.75V17.5h2.5v-4.75c0-2.5-1.38-3.5-3-3.5z"/></svg>
+          linkedin.com/in/mateusvassuncao
+        </a>
+      </p>
+    </div>
+  </div>
+</footer>
+</body>
+</html>
