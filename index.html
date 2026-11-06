@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Assistente 🚐 Partiu Rapha! </title>
+<title>Assistente 🚐 Partiu Rapha!</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -436,18 +436,26 @@ function detectInputType(text){
 // ═══════════════════════════════════════════
 function parseNameList(text){
   return text.split('\n')
-    .map(l=>l
-      .replace(/^[\s•\-\*\d\.\)\|>]+/,'')
-      .replace(/\(.*?\)/g,'')
-      .replace(/—.*$/,'')
-      .replace(/[🚐⏳🚫⌛✅🔁📋1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣]/gu,'')
-      .trim()
-    )
     .filter(l=>{
-      if(!l||l.length<2) return false;
-      if(/^(Van\s*\d|Relatório|Relatorio|Ninguém|Aguardando|Informaram|responderam)/i.test(l)) return false;
+      const t=l.trim();
+      if(!t) return false;
+      // Skip header/title lines:
+      // - starts with "Van " (e.g. "Van SEX 🕗18:10 RETORNO 18lug")
+      // - starts with report section markers
+      if(/^Van\s/i.test(t)) return false;
+      if(/^(Relatório|Relatorio|Ninguém|Aguardando|Informaram|responderam|Ainda precisam)/i.test(t)) return false;
+      if(/^[🚐⏳🚫⌛]/u.test(t)) return false;
       return true;
     })
+    .map(l=>l
+      .replace(/^[\s•\-\*\d\.\)\|>]+/,'')   // leading bullets/numbers
+      .replace(/\(.*?\)/g,'')                // remove annotations: (av), (vD), (SR) etc.
+      .replace(/—.*$/,'')                    // em-dash suffix
+      .replace(/[🚐⏳🚫⌛✅🔁📋1️⃣2️⃣3️⃣4️⃣5️⃣6️⃣🕗]/gu,'') // emojis
+      .replace(/\s{2,}/g,' ')               // collapse extra spaces
+      .trim()
+    )
+    .filter(l=>l.length>=2)
     .map(name=>({name, vanHint:null, nret:false}));
 }
 
