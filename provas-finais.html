@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#7c3aed">
+<title>Provas Finais</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f6f4ff; --card:#ffffff; --text:#1e1b3a; --muted:#6b6890; --line:#e8e4fb;
+  --brand1:#7c3aed; --brand2:#ec4899; --brand3:#f59e0b; --ok:#10b981;
+  --shadow:0 8px 24px rgba(76,29,149,.10);
+  --radius:20px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#13112a; --card:#1f1c3d; --text:#f3f1ff; --muted:#a9a5cc; --line:#2f2b55; --shadow:0 8px 24px rgba(0,0,0,.35); }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg)}
+body{font-family:"Nunito",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--text);min-height:100vh;-webkit-tap-highlight-color:transparent;padding-bottom:110px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0;background:none}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px}
+
+/* Cabeçalho */
+.hero{background:linear-gradient(135deg,var(--brand1) 0%,var(--brand2) 60%,var(--brand3) 120%);color:#fff;padding:28px 0 64px;border-radius:0 0 32px 32px;position:relative;overflow:hidden}
+.hero::before,.hero::after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.12)}
+.hero::before{width:220px;height:220px;right:-60px;top:-80px}
+.hero::after{width:140px;height:140px;left:-50px;bottom:-60px}
+.hero .wrap{position:relative;z-index:1}
+.eyebrow{font-size:.8rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.hero h1{font-size:clamp(1.8rem,6vw,2.4rem);font-weight:900;line-height:1.1;margin:6px 0 4px}
+.hero p{opacity:.92;font-weight:600}
+.progress{margin-top:18px;background:rgba(255,255,255,.22);border-radius:999px;height:12px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:#fff;border-radius:999px;transition:width .5s ease}
+.progress-label{display:flex;justify-content:space-between;font-size:.85rem;font-weight:700;margin-top:6px;opacity:.95}
+
+/* Destaque da próxima prova */
+.next{margin-top:-44px;position:relative;z-index:2}
+.next-card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;display:flex;align-items:center;gap:14px}
+.next-card .big{font-size:2.2rem;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--brand1),var(--brand2));-webkit-background-clip:text;background-clip:text;color:transparent;min-width:64px;text-align:center}
+.next-card .big small{display:block;font-size:.7rem;color:var(--muted);-webkit-text-fill-color:var(--muted);font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-top:4px}
+.next-card .info{flex:1;min-width:0}
+.next-card .info b{display:block;font-size:1.05rem}
+.next-card .info span{color:var(--muted);font-size:.9rem;font-weight:600}
+
+/* Abas */
+.tabs{position:sticky;top:0;z-index:5;background:var(--bg);padding:14px 0 10px}
+.tabs .wrap{display:flex;gap:8px}
+.tab{flex:1;padding:12px;border-radius:14px;font-weight:800;color:var(--muted);background:var(--card);box-shadow:var(--shadow);transition:.2s}
+.tab.active{color:#fff;background:linear-gradient(135deg,var(--brand1),var(--brand2))}
+
+/* Busca e filtros */
+.tools{display:flex;flex-direction:column;gap:10px;margin:6px 0 14px}
+.search{display:flex;align-items:center;gap:8px;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:0 12px}
+.search:focus-within{border-color:var(--brand1)}
+.search input{border:0;outline:0;background:transparent;padding:12px 0;width:100%}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{white-space:nowrap;padding:8px 14px;border-radius:999px;background:var(--card);border:2px solid var(--line);font-weight:700;font-size:.9rem;color:var(--muted)}
+.chip.active{border-color:var(--brand1);color:var(--brand1);background:color-mix(in srgb,var(--brand1) 10%,var(--card))}
+
+/* Cartões de prova */
+.list{display:flex;flex-direction:column;gap:14px}
+.exam{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;position:relative;overflow:hidden;border-left:7px solid var(--c);animation:pop .3s ease both}
+.exam.past{opacity:.6}
+@keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:none}}
+.exam-top{display:flex;gap:12px;align-items:center}
+.avatar{width:58px;height:58px;border-radius:50%;flex-shrink:0;object-fit:cover;border:3px solid var(--c);background:var(--c);color:#fff;display:grid;place-items:center;font-weight:900;font-size:1.2rem;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.exam-title{flex:1;min-width:0}
+.exam-title h3{font-size:1.15rem;font-weight:900;color:var(--c);line-height:1.2}
+.exam-title p{color:var(--muted);font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{flex-shrink:0;padding:6px 10px;border-radius:12px;font-weight:900;font-size:.8rem;text-align:center;background:color-mix(in srgb,var(--c) 14%,var(--card));color:var(--c)}
+.badge.hot{background:linear-gradient(135deg,#ef4444,#f97316);color:#fff}
+.meta{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 0}
+.meta span{font-size:.82rem;font-weight:700;padding:5px 10px;border-radius:10px;background:var(--bg);color:var(--text)}
+.content{margin-top:10px;font-size:.93rem;color:var(--muted);line-height:1.45}
+.exam-actions{display:flex;gap:8px;margin-top:12px;align-items:center}
+.check{display:flex;align-items:center;gap:8px;font-weight:800;font-size:.9rem;padding:8px 12px;border-radius:12px;background:var(--bg);flex:1}
+.check .box{width:22px;height:22px;border-radius:7px;border:2.5px solid var(--muted);display:grid;place-items:center;transition:.2s}
+.check.on{background:color-mix(in srgb,var(--ok) 15%,var(--card));color:var(--ok)}
+.check.on .box{background:var(--ok);border-color:var(--ok)}
+.check.on .box::after{content:"✓";color:#fff;font-size:.8rem;font-weight:900}
+.icon-btn{width:40px;height:40px;border-radius:12px;background:var(--bg);display:grid;place-items:center;font-size:1.05rem}
+
+/* Professores */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
+.teacher{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 12px 14px;text-align:center;position:relative;overflow:hidden;animation:pop .3s ease both}
+.teacher::before{content:"";position:absolute;inset:0 0 auto 0;height:58px;background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 55%,#fff))}
+.teacher .photo{position:relative;width:96px;height:96px;margin:0 auto;border-radius:50%;border:4px solid var(--card);background:var(--c);color:#fff;display:grid;place-items:center;font-size:2rem;font-weight:900;overflow:hidden;box-shadow:0 6px 14px rgba(0,0,0,.15)}
+.teacher .photo img{width:100%;height:100%;object-fit:cover}
+.cam{position:absolute;right:calc(50% - 56px);top:86px;width:34px;height:34px;border-radius:50%;background:var(--brand1);color:#fff;display:grid;place-items:center;font-size:.95rem;border:3px solid var(--card);z-index:1}
+.teacher h3{font-size:1rem;font-weight:900;margin-top:10px;line-height:1.2}
+.teacher .subj{color:var(--c);font-weight:800;font-size:.88rem}
+.teacher .count{color:var(--muted);font-size:.8rem;font-weight:700;margin-top:2px}
+.teacher .row{display:flex;gap:6px;justify-content:center;margin-top:10px}
+
+.empty{text-align:center;padding:40px 16px;color:var(--muted);font-weight:700}
+.empty .emoji{font-size:3rem;display:block;margin-bottom:8px}
+
+/* Botão flutuante */
+.fab{position:fixed;right:max(16px,calc(50% - 364px));bottom:calc(20px + env(safe-area-inset-bottom));z-index:10;height:60px;padding:0 22px;border-radius:20px;background:linear-gradient(135deg,var(--brand1),var(--brand2));color:#fff;font-weight:900;font-size:1rem;box-shadow:0 10px 24px rgba(124,58,237,.45);display:flex;align-items:center;gap:8px}
+.fab b{font-size:1.6rem;line-height:1}
+.fab:active{transform:scale(.96)}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(15,10,40,.55);z-index:20;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(3px)}
+.overlay.open{display:flex}
+.sheet{background:var(--card);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:26px 26px 0 0;padding:22px 18px calc(22px + env(safe-area-inset-bottom));animation:up .25s ease}
+@media (min-width:640px){.overlay{align-items:center}.sheet{border-radius:26px}}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet h2{font-weight:900;font-size:1.35rem;margin-bottom:14px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+.field label{font-weight:800;font-size:.88rem;color:var(--muted)}
+.field input,.field select,.field textarea{background:var(--bg);border:2px solid var(--line);border-radius:12px;padding:12px;outline:0;width:100%;font-size:1rem}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--brand1)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.colors{display:flex;flex-wrap:wrap;gap:8px}
+.colors button{width:36px;height:36px;border-radius:50%;border:3px solid transparent}
+.colors button.sel{border-color:var(--text);transform:scale(1.08)}
+.photo-pick{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+.photo-pick .avatar{width:76px;height:76px;font-size:1.6rem}
+.btn{padding:12px 18px;border-radius:14px;font-weight:800}
+.btn.primary{background:linear-gradient(135deg,var(--brand1),var(--brand2));color:#fff}
+.btn.ghost{background:var(--bg)}
+.btn.danger{background:color-mix(in srgb,#ef4444 14%,var(--card));color:#ef4444}
+.btns{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap}
+.btns .primary{flex:1}
+
+.toast{position:fixed;left:50%;bottom:96px;transform:translate(-50%,20px);background:var(--text);color:var(--bg);padding:12px 18px;border-radius:14px;font-weight:800;opacity:0;transition:.25s;z-index:30;pointer-events:none;max-width:calc(100% - 32px);text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+footer{text-align:center;color:var(--muted);font-size:.82rem;font-weight:600;margin:28px 0 0}
+footer button{color:var(--brand1);font-weight:800;text-decoration:underline}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="eyebrow">📚 Fim de ano letivo</div>
+    <h1>Provas Finais</h1>
+    <p>Todas as datas, conteúdos e professores num só lugar.</p>
+    <div class="progress"><span id="progressBar"></span></div>
+    <div class="progress-label"><span id="progressText">Estudado: 0 de 0</span><span id="progressPct">0%</span></div>
+  </div>
+</header>
+
+<div class="wrap next" id="nextBox"></div>
+
+<nav class="tabs">
+  <div class="wrap">
+    <button class="tab active" data-tab="provas">📝 Provas</button>
+    <button class="tab" data-tab="professores">👩‍🏫 Professores</button>
+  </div>
+</nav>
+
+<main class="wrap">
+  <section id="tab-provas">
+    <div class="tools">
+      <div class="search">🔎<input id="search" type="search" placeholder="Buscar matéria, professor ou conteúdo…"></div>
+      <div class="chips" id="filters">
+        <button class="chip active" data-f="todas">Todas</button>
+        <button class="chip" data-f="pendentes">Para estudar</button>
+        <button class="chip" data-f="estudadas">Já estudei</button>
+        <button class="chip" data-f="semana">Próximos 7 dias</button>
+        <button class="chip" data-f="passadas">Já aconteceram</button>
+      </div>
+    </div>
+    <div class="list" id="examList"></div>
+  </section>
+
+  <section id="tab-professores" class="hidden">
+    <p style="color:var(--muted);font-weight:700;margin:6px 0 14px">Toque no 📷 para colocar ou trocar a foto do professor.</p>
+    <div class="grid" id="teacherGrid"></div>
+  </section>
+
+  <footer>
+    Os dados ficam salvos neste aparelho.<br>
+    <button id="resetBtn">Restaurar dados de exemplo</button>
+  </footer>
+</main>
+
+<button class="fab" id="fab"><b>+</b><span id="fabText">Nova prova</span></button>
+
+<div class="overlay" id="overlay"><div class="sheet" id="sheet"></div></div>
+<input type="file" id="fileInput" accept="image/*" class="hidden">
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  const STORE = "provasFinais.v1";
+  const CORES = ["#7c3aed","#ec4899","#f59e0b","#10b981","#3b82f6","#ef4444","#14b8a6","#f97316","#8b5cf6","#06b6d4"];
+
+  const exemplo = () => {
+    const base = new Date(); base.setHours(0,0,0,0);
+    const d = n => { const x = new Date(base); x.setDate(x.getDate()+n); return iso(x); };
+    const professores = [
+      {id:"p1", nome:"Profa. Ana Souza",   materia:"Matemática", cor:"#7c3aed", foto:null},
+      {id:"p2", nome:"Prof. Carlos Lima",  materia:"Português",  cor:"#ec4899", foto:null},
+      {id:"p3", nome:"Profa. Beatriz Rocha", materia:"História", cor:"#f59e0b", foto:null},
+      {id:"p4", nome:"Prof. Daniel Alves", materia:"Ciências",   cor:"#10b981", foto:null},
+      {id:"p5", nome:"Profa. Fernanda Dias", materia:"Inglês",   cor:"#3b82f6", foto:null},
+      {id:"p6", nome:"Prof. Gustavo Melo", materia:"Geografia",  cor:"#14b8a6", foto:null}
+    ];
+    const provas = [
+      {id:"e1", profId:"p1", data:d(3),  hora:"07:30", sala:"Sala 12", conteudo:"Equações do 2º grau, funções e porcentagem.", estudado:false},
+      {id:"e2", profId:"p2", data:d(5),  hora:"07:30", sala:"Sala 12", conteudo:"Interpretação de texto, crase e redação dissertativa.", estudado:true},
+      {id:"e3", profId:"p4", data:d(8),  hora:"09:40", sala:"Laboratório", conteudo:"Sistema digestório, célula e tabela periódica.", estudado:false},
+      {id:"e4", profId:"p3", data:d(10), hora:"07:30", sala:"Sala 12", conteudo:"Brasil Colônia, Revolução Industrial e Independência.", estudado:false},
+      {id:"e5", profId:"p5", data:d(12), hora:"09:40", sala:"Sala 8",  conteudo:"Simple past, present perfect e vocabulário da unidade 6.", estudado:false},
+      {id:"e6", profId:"p6", data:d(15), hora:"07:30", sala:"Sala 12", conteudo:"Climas do Brasil, relevo e leitura de mapas.", estudado:false}
+    ];
+    return {professores, provas};
+  };
+
+  let db = load();
+  let aba = "provas", filtro = "todas", busca = "";
+  let fotoAlvo = null;     // id do professor (ou "form") que receberá a foto
+  let fotoTemp = null;     // foto escolhida no formulário de professor
+
+  // ---------- utilidades ----------
+  function iso(dt){ return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,"0")}-${String(dt.getDate()).padStart(2,"0")}`; }
+  function parse(s){ const [y,m,d] = s.split("-").map(Number); return new Date(y,m-1,d); }
+  function hoje(){ const t = new Date(); t.setHours(0,0,0,0); return t; }
+  function dias(s){ return Math.round((parse(s) - hoje())/86400000); }
+  function esc(s){ return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  function iniciais(nome){
+    const p = nome.replace(/^(prof(a|\.|essora|essor)?\.?)\s+/i,"").trim().split(/\s+/);
+    return ((p[0]||"?")[0] + (p.length>1 ? p[p.length-1][0] : "")).toUpperCase();
+  }
+  function dataBonita(s){
+    return parse(s).toLocaleDateString("pt-BR",{weekday:"long", day:"2-digit", month:"long"});
+  }
+  function contagem(n){
+    if (n < 0) return "Já foi";
+    if (n === 0) return "É hoje!";
+    if (n === 1) return "Amanhã";
+    return `Faltam ${n} dias`;
+  }
+  function uid(){ return Math.random().toString(36).slice(2,9); }
+  function prof(id){ return db.professores.find(p => p.id === id); }
+  function avatar(p, cls="avatar"){
+    if (!p) return `<div class="${cls}" style="--c:#999">?</div>`;
+    return `<div class="${cls}" style="--c:${p.cor}">${p.foto ? `<img src="${p.foto}" alt="Foto de ${esc(p.nome)}">` : esc(iniciais(p.nome))}</div>`;
+  }
+
+  function load(){
+    try { const s = localStorage.getItem(STORE); if (s) return JSON.parse(s); } catch(e){}
+    return exemplo();
+  }
+  function save(){
+    try { localStorage.setItem(STORE, JSON.stringify(db)); }
+    catch(e){ toast("Não foi possível salvar (memória cheia?)"); }
+  }
+  function toast(msg){
+    const t = document.getElementById("toast");
+    t.textContent = msg; t.classList.add("show");
+    clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove("show"), 2200);
+  }
+
+  // ---------- renderização ----------
+  function render(){
+    renderHeader(); renderNext(); renderExams(); renderTeachers();
+    document.getElementById("fabText").textContent = aba === "provas" ? "Nova prova" : "Novo professor";
+  }
+
+  function renderHeader(){
+    const total = db.provas.length, ok = db.provas.filter(p => p.estudado).length;
+    const pct = total ? Math.round(ok/total*100) : 0;
+    document.getElementById("progressBar").style.width = pct + "%";
+    document.getElementById("progressText").textContent = `Estudado: ${ok} de ${total} provas`;
+    document.getElementById("progressPct").textContent = pct + "%";
+  }
+
+  function renderNext(){
+    const box = document.getElementById("nextBox");
+    const prox = db.provas.filter(p => dias(p.data) >= 0).sort(ordem)[0];
+    if (!prox){
+      box.innerHTML = `<div class="next-card"><div class="big">🎉</div><div class="info"><b>Nenhuma prova pela frente!</b><span>Aproveite as férias.</span></div></div>`;
+      return;
+    }
+    const p = prof(prox.profId), n = dias(prox.data);
+    box.innerHTML = `<div class="next-card" style="--c:${p?.cor||"#999"}">
+      <div class="big">${n === 0 ? "Hoje" : n}<small>${n === 0 ? "boa prova!" : n === 1 ? "dia" : "dias"}</small></div>
+      <div class="info"><b>Próxima: ${esc(p?.materia||"Prova")}</b><span>${esc(dataBonita(prox.data))} · ${esc(prox.hora)}</span></div>
+      ${avatar(p)}
+    </div>`;
+  }
+
+  function ordem(a,b){ return (a.data+a.hora).localeCompare(b.data+b.hora); }
+
+  function renderExams(){
+    const el = document.getElementById("examList");
+    const q = busca.trim().toLowerCase();
+    let lista = [...db.provas].sort((a,b) => {
+      const pa = dias(a.data) < 0, pb = dias(b.data) < 0;
+      if (pa !== pb) return pa ? 1 : -1;      // passadas vão para o fim
+      return ordem(a,b);
+    });
+    lista = lista.filter(e => {
+      const n = dias(e.data);
+      if (filtro === "pendentes" && (e.estudado || n < 0)) return false;
+      if (filtro === "estudadas" && !e.estudado) return false;
+      if (filtro === "semana" && (n < 0 || n > 7)) return false;
+      if (filtro === "passadas" && n >= 0) return false;
+      if (!q) return true;
+      const p = prof(e.profId) || {};
+      return [p.materia, p.nome, e.conteudo, e.sala].join(" ").toLowerCase().includes(q);
+    });
+    if (!lista.length){
+      el.innerHTML = `<div class="empty"><span class="emoji">🗓️</span>${db.provas.length ? "Nenhuma prova encontrada com esse filtro." : "Nenhuma prova cadastrada ainda.<br>Toque em <b>+ Nova prova</b> para começar."}</div>`;
+      return;
+    }
+    el.innerHTML = lista.map((e,i) => {
+      const p = prof(e.profId), n = dias(e.data);
+      return `<article class="exam ${n<0?"past":""}" style="--c:${p?.cor||"#999"};animation-delay:${i*40}ms">
+        <div class="exam-top">
+          <button data-act="ver-prof" data-id="${e.profId}" aria-label="Ver professor">${avatar(p)}</button>
+          <div class="exam-title">
+            <h3>${esc(p?.materia || "Matéria")}</h3>
+            <p>${esc(p?.nome || "Professor removido")}</p>
+          </div>
+          <div class="badge ${n>=0 && n<=2 ? "hot":""}">${contagem(n)}</div>
+        </div>
+        <div class="meta">
+          <span>📅 ${esc(dataBonita(e.data))}</span>
+          <span>⏰ ${esc(e.hora)}</span>
+          ${e.sala ? `<span>📍 ${esc(e.sala)}</span>` : ""}
+        </div>
+        ${e.conteudo ? `<p class="content"><b>Conteúdo:</b> ${esc(e.conteudo)}</p>` : ""}
+        <div class="exam-actions">
+          <button class="check ${e.estudado?"on":""}" data-act="estudar" data-id="${e.id}"><span class="box"></span>${e.estudado ? "Já estudei!" : "Marcar como estudada"}</button>
+          <button class="icon-btn" data-act="editar-prova" data-id="${e.id}" aria-label="Editar prova">✏️</button>
+        </div>
+      </article>`;
+    }).join("");
+  }
+
+  function renderTeachers(){
+    const el = document.getElementById("teacherGrid");
+    if (!db.professores.length){
+      el.innerHTML = `<div class="empty" style="grid-column:1/-1"><span class="emoji">👩‍🏫</span>Nenhum professor cadastrado.</div>`;
+      return;
+    }
+    el.innerHTML = db.professores.map((p,i) => {
+      const qtd = db.provas.filter(e => e.profId === p.id).length;
+      return `<div class="teacher" style="--c:${p.cor};animation-delay:${i*40}ms">
+        ${avatar(p,"photo")}
+        <button class="cam" data-act="foto" data-id="${p.id}" aria-label="Trocar foto">📷</button>
+        <h3>${esc(p.nome)}</h3>
+        <div class="subj">${esc(p.materia)}</div>
+        <div class="count">${qtd} ${qtd===1?"prova":"provas"}</div>
+        <div class="row"><button class="icon-btn" data-act="editar-prof" data-id="${p.id}" aria-label="Editar professor">✏️</button></div>
+      </div>`;
+    }).join("");
+  }
+
+  // ---------- modais ----------
+  const overlay = document.getElementById("overlay"), sheet = document.getElementById("sheet");
+  function abrir(html){ sheet.innerHTML = html; overlay.classList.add("open"); document.body.style.overflow = "hidden"; }
+  function fechar(){ overlay.classList.remove("open"); document.body.style.overflow = ""; fotoTemp = null; }
+  overlay.addEventListener("click", e => { if (e.target === overlay) fechar(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") fechar(); });
+
+  function formProva(id){
+    if (!db.professores.length){ toast("Cadastre um professor primeiro 😉"); trocarAba("professores"); formProf(); return; }
+    const e = db.provas.find(x => x.id === id) || {data: iso(hoje()), hora:"07:30", sala:"", conteudo:"", profId: db.professores[0].id};
+    abrir(`<h2>${id ? "Editar prova" : "Nova prova"}</h2>
+      <form id="f">
+        <div class="field"><label>Matéria / Professor</label>
+          <select name="profId" required>${db.professores.map(p => `<option value="${p.id}" ${p.id===e.profId?"selected":""}>${esc(p.materia)} — ${esc(p.nome)}</option>`).join("")}</select></div>
+        <div class="two">
+          <div class="field"><label>Data</label><input type="date" name="data" value="${e.data}" required></div>
+          <div class="field"><label>Horário</label><input type="time" name="hora" value="${e.hora}" required></div>
+        </div>
+        <div class="field"><label>Sala / Local</label><input name="sala" value="${esc(e.sala)}" placeholder="Ex.: Sala 12"></div>
+        <div class="field"><label>Conteúdo da prova</label><textarea name="conteudo" rows="3" placeholder="O que vai cair?">${esc(e.conteudo)}</textarea></div>
+        <div class="btns">
+          ${id ? `<button type="button" class="btn danger" id="del">Excluir</button>` : ""}
+          <button type="button" class="btn ghost" id="cancel">Cancelar</button>
+          <button class="btn primary">Salvar</button>
+        </div>
+      </form>`);
+    sheet.querySelector("#cancel").onclick = fechar;
+    if (id) sheet.querySelector("#del").onclick = () => {
+      if (!confirm("Excluir esta prova?")) return;
+      db.provas = db.provas.filter(x => x.id !== id); save(); fechar(); render(); toast("Prova excluída");
+    };
+    sheet.querySelector("#f").onsubmit = ev => {
+      ev.preventDefault();
+      const fd = Object.fromEntries(new FormData(ev.target));
+      if (id) Object.assign(e, fd); else db.provas.push({id: uid(), estudado:false, ...fd});
+      save(); fechar(); render(); toast(id ? "Prova atualizada ✅" : "Prova adicionada ✅");
+    };
+  }
+
+  function formProf(id){
+    const p = prof(id) || {nome:"", materia:"", cor: CORES[db.professores.length % CORES.length], foto:null};
+    fotoTemp = p.foto;
+    let cor = p.cor;
+    const preview = () => avatar({nome: sheet.querySelector("[name=nome]")?.value || p.nome || "?", cor, foto: fotoTemp});
+    abrir(`<h2>${id ? "Editar professor" : "Novo professor"}</h2>
+      <form id="f">
+        <div class="photo-pick"><div id="pv"></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button type="button" class="btn ghost" id="pick">📷 Escolher foto</button>
+            <button type="button" class="btn ghost" id="nofoto" style="font-size:.85rem">Remover foto</button>
+          </div>
+        </div>
+        <div class="field"><label>Nome</label><input name="nome" value="${esc(p.nome)}" placeholder="Ex.: Profa. Ana Souza" required></div>
+        <div class="field"><label>Matéria</label><input name="materia" value="${esc(p.materia)}" placeholder="Ex.: Matemática" required></div>
+        <div class="field"><label>Cor</label><div class="colors">${CORES.map(c => `<button type="button" data-c="${c}" style="background:${c}" class="${c===cor?"sel":""}" aria-label="Cor"></button>`).join("")}</div></div>
+        <div class="btns">
+          ${id ? `<button type="button" class="btn danger" id="del">Excluir</button>` : ""}
+          <button type="button" class="btn ghost" id="cancel">Cancelar</button>
+          <button class="btn primary">Salvar</button>
+        </div>
+      </form>`);
+    const pv = sheet.querySelector("#pv");
+    const upd = () => pv.innerHTML = preview();
+    upd();
+    formProf.atualizar = upd;
+    sheet.querySelector("[name=nome]").oninput = upd;
+    sheet.querySelector("#pick").onclick = () => { fotoAlvo = "form"; fileInput.click(); };
+    sheet.querySelector("#nofoto").onclick = () => { fotoTemp = null; upd(); };
+    sheet.querySelectorAll(".colors button").forEach(b => b.onclick = () => {
+      cor = b.dataset.c; sheet.querySelectorAll(".colors button").forEach(x => x.classList.toggle("sel", x === b)); upd();
+    });
+    sheet.querySelector("#cancel").onclick = fechar;
+    if (id) sheet.querySelector("#del").onclick = () => {
+      const qtd = db.provas.filter(e => e.profId === id).length;
+      if (!confirm(qtd ? `Excluir professor e suas ${qtd} prova(s)?` : "Excluir este professor?")) return;
+      db.professores = db.professores.filter(x => x.id !== id);
+      db.provas = db.provas.filter(e => e.profId !== id);
+      save(); fechar(); render(); toast("Professor excluído");
+    };
+    sheet.querySelector("#f").onsubmit = ev => {
+      ev.preventDefault();
+      const fd = Object.fromEntries(new FormData(ev.target));
+      const dados = {nome: fd.nome.trim(), materia: fd.materia.trim(), cor, foto: fotoTemp};
+      if (id) Object.assign(p, dados); else db.professores.push({id: uid(), ...dados});
+      save(); fechar(); render(); toast(id ? "Professor atualizado ✅" : "Professor adicionado ✅");
+    };
+  }
+
+  // ---------- fotos ----------
+  const fileInput = document.getElementById("fileInput");
+  fileInput.addEventListener("change", async () => {
+    const f = fileInput.files[0]; fileInput.value = "";
+    if (!f) return;
+    try {
+      const url = await reduzir(f);
+      if (fotoAlvo === "form"){ fotoTemp = url; formProf.atualizar && formProf.atualizar(); }
+      else { const p = prof(fotoAlvo); if (p){ p.foto = url; save(); render(); toast("Foto atualizada 📸"); } }
+    } catch(e){ toast("Não consegui abrir essa imagem"); }
+  });
+  // Recorta em quadrado e reduz para 320px, para caber no armazenamento do navegador
+  function reduzir(file){
+    return new Promise((ok, erro) => {
+      const img = new Image(), r = new FileReader();
+      r.onload = () => { img.src = r.result; };
+      r.onerror = erro;
+      img.onload = () => {
+        const S = 320, lado = Math.min(img.width, img.height);
+        const c = document.createElement("canvas"); c.width = c.height = S;
+        c.getContext("2d").drawImage(img, (img.width-lado)/2, (img.height-lado)/2, lado, lado, 0, 0, S, S);
+        ok(c.toDataURL("image/jpeg", .82));
+      };
+      img.onerror = erro;
+      r.readAsDataURL(file);
+    });
+  }
+
+  // ---------- eventos ----------
+  function trocarAba(t){
+    aba = t;
+    document.querySelectorAll(".tab").forEach(b => b.classList.toggle("active", b.dataset.tab === t));
+    document.getElementById("tab-provas").classList.toggle("hidden", t !== "provas");
+    document.getElementById("tab-professores").classList.toggle("hidden", t !== "professores");
+    render();
+  }
+  document.querySelectorAll(".tab").forEach(b => b.onclick = () => trocarAba(b.dataset.tab));
+  document.getElementById("filters").addEventListener("click", e => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    filtro = b.dataset.f;
+    document.querySelectorAll(".chip").forEach(x => x.classList.toggle("active", x === b));
+    renderExams();
+  });
+  document.getElementById("search").addEventListener("input", e => { busca = e.target.value; renderExams(); });
+  document.getElementById("fab").onclick = () => aba === "provas" ? formProva() : formProf();
+  document.getElementById("resetBtn").onclick = () => {
+    if (!confirm("Isso apaga suas alterações e volta aos dados de exemplo. Continuar?")) return;
+    db = exemplo(); save(); render(); toast("Dados de exemplo restaurados");
+  };
+  document.body.addEventListener("click", e => {
+    const b = e.target.closest("[data-act]"); if (!b) return;
+    const id = b.dataset.id;
+    switch (b.dataset.act){
+      case "estudar": {
+        const ex = db.provas.find(x => x.id === id); ex.estudado = !ex.estudado; save(); render();
+        if (ex.estudado) toast("Mandou bem! 💪"); break;
+      }
+      case "editar-prova": formProva(id); break;
+      case "editar-prof": formProf(id); break;
+      case "ver-prof": if (prof(id)) formProf(id); break;
+      case "foto": fotoAlvo = id; fileInput.click(); break;
+    }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
